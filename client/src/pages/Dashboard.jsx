@@ -1,18 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import SkillsList from "../components/SkillsList";
+import MistakesList from "../components/Mistakelist";
 
 const Dashboard = () => {
   const dashboardRef = useRef(null);
   const [summary, setSummary] = useState(null);
+  const [mistakes, setMistakes] = useState([]);
+  const [patterns, setPatterns] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchSummary = async () => {
+  const fetchAll = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/dashboard/summary");
-      if (!res.ok) throw new Error("Failed to fetch dashboard summary");
-      const data = await res.json();
-      setSummary(data);
+      const [summaryRes, mistakesRes, patternsRes] = await Promise.all([
+        fetch("http://localhost:5000/api/dashboard/summary"),
+        fetch("http://localhost:5000/api/mistakes"),
+        fetch("http://localhost:5000/api/mistakes/patterns"),
+      ]);
+
+      if (!summaryRes.ok || !mistakesRes.ok || !patternsRes.ok) {
+        throw new Error("Failed to fetch dashboard data");
+      }
+
+      const [summaryData, mistakesData, patternsData] = await Promise.all([
+        summaryRes.json(),
+        mistakesRes.json(),
+        patternsRes.json(),
+      ]);
+
+      setSummary(summaryData);
+      setMistakes(mistakesData);
+      setPatterns(patternsData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -21,7 +39,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchSummary();
+    fetchAll();
   }, []);
 
   useEffect(() => {
@@ -79,7 +97,11 @@ const Dashboard = () => {
       </div>
 
       {!loading && summary?.skills && (
-        <SkillsList skills={summary.skills} onPracticed={fetchSummary} />
+        <SkillsList skills={summary.skills} onPracticed={fetchAll} />
+      )}
+
+      {!loading && (
+        <MistakesList mistakes={mistakes} patterns={patterns} />
       )}
     </main>
   );
