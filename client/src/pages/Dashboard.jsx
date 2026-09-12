@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import SkillsList from "../components/SkillsList";
-import MistakesList from "../components/Mistakelist";
+import MistakesList from "../components/MistakeList";
 
 const Dashboard = () => {
   const dashboardRef = useRef(null);
