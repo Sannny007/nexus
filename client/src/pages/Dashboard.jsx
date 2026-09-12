@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import SkillsList from "../components/SkillsList";
-import MistakesList from "../components/MistakeList";
+import MistakeList from "../components/MistakeList";
 
 const Dashboard = () => {
   const dashboardRef = useRef(null);
@@ -101,7 +101,7 @@ const Dashboard = () => {
       )}
 
       {!loading && (
-        <MistakesList mistakes={mistakes} patterns={patterns} />
+        <MistakeList mistakes={mistakes} patterns={patterns} />
       )}
     </main>
   );
