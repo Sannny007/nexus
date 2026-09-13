@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.userId;
     const result = await pool.query(
       `SELECT
       m.id, m.title, m.description, m.root_cause, m.fix, m.status, m.created_at,
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.userId;
     const { skillId, projectId, title, description, rootcause, fix } =req.body;
 
     if (!title) {
@@ -74,7 +74,7 @@ router.put("/:id/resolve", async (req, res) => {
 
 router.get("/patterns", async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.userId;
 
     const result = await pool.query(
       `SELECT s.id AS skill_id, s.name AS skill_name, COUNT(*) AS mistake_count

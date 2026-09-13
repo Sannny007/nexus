@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/summary", async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.userId;
     const projectsResult = await pool.query(
       "SELECT COUNT(*) FROM projects WHERE user_id = $1", [userId]
     );
@@ -51,7 +51,7 @@ router.get("/summary", async (req, res) => {
 
 router.get("/timeline", async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.userId;
 
     const result = await pool.query(
       `SELECT 'mistake' AS event_type, title, created_at AS event_time

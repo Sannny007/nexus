@@ -6,7 +6,7 @@ const router = Router();
 router.put("/:skillId/practice", async (req, res) => {
   try {
     const { skillId } = req.params;
-    const userId = 1;
+    const userId = req.userId;
 
     const result = await pool.query(
       `UPDATE user_skills
