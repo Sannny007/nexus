@@ -2,35 +2,40 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import SkillsList from "../components/SkillsList";
 import MistakeList from "../components/MistakeList";
+import TimelineFeed from "../components/TimelineFeed";
 
 const Dashboard = () => {
   const dashboardRef = useRef(null);
   const [summary, setSummary] = useState(null);
   const [mistakes, setMistakes] = useState([]);
   const [patterns, setPatterns] = useState([]);
+  const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = async () => {
     try {
-      const [summaryRes, mistakesRes, patternsRes] = await Promise.all([
+      const [summaryRes, mistakesRes, patternsRes, timelineRes] = await Promise.all([
         fetch("http://localhost:5000/api/dashboard/summary"),
         fetch("http://localhost:5000/api/mistakes"),
         fetch("http://localhost:5000/api/mistakes/patterns"),
+        fetch("http://localhost:5000/api/dashboard/timeline"),
       ]);
 
-      if (!summaryRes.ok || !mistakesRes.ok || !patternsRes.ok) {
+      if (!summaryRes.ok || !mistakesRes.ok || !patternsRes.ok || !timelineRes.ok) {
         throw new Error("Failed to fetch dashboard data");
       }
 
-      const [summaryData, mistakesData, patternsData] = await Promise.all([
+      const [summaryData, mistakesData, patternsData, timelineData] = await Promise.all([
         summaryRes.json(),
         mistakesRes.json(),
         patternsRes.json(),
+        timelineRes.json(),
       ]);
 
       setSummary(summaryData);
       setMistakes(mistakesData);
       setPatterns(patternsData);
+      setTimeline(timelineData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -103,8 +108,14 @@ const Dashboard = () => {
       {!loading && (
         <MistakeList mistakes={mistakes} patterns={patterns} />
       )}
+
+      {!loading && timeline.length > 0 && (
+        <TimelineFeed events={timeline} />
+      )}
     </main>
   );
 };
+
+action
 
 export default Dashboard;
