@@ -6,10 +6,12 @@ import TimelineFeed from "../components/TimelineFeed";
 
 const Dashboard = () => {
   const dashboardRef = useRef(null);
-  const [summary, setSummary] = useState(null);
-  const [mistakes, setMistakes] = useState([]);
-  const [patterns, setPatterns] = useState([]);
-  const [timeline, setTimeline] = useState([]);
+  const [dashboardData, setDashboardData] = useState({
+    summary: null,
+    mistakes: [],
+    patterns: [],
+    timeline: [],
+  });
   const [loading, setLoading] = useState(true);
 
   const fetchAll = async () => {
@@ -32,10 +34,12 @@ const Dashboard = () => {
         timelineRes.json(),
       ]);
 
-      setSummary(summaryData);
-      setMistakes(mistakesData);
-      setPatterns(patternsData);
-      setTimeline(timelineData);
+      setDashboardData({
+        summary: summaryData,
+        mistakes: mistakesData,
+        patterns: patternsData,
+        timeline: timelineData,
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -66,6 +70,8 @@ const Dashboard = () => {
 
     return () => ctx.revert();
   }, [loading]);
+
+  const { summary, mistakes, patterns, timeline } = dashboardData;
 
   return (
     <main ref={dashboardRef} className="p-8">
@@ -115,7 +121,5 @@ const Dashboard = () => {
     </main>
   );
 };
-
-action
 
 export default Dashboard;
