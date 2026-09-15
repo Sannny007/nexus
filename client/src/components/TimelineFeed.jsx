@@ -3,7 +3,7 @@ const formateRelativeTime = (isoString) => {
   const now = new Date();
   const diffMs = now.getTime() - eventDate.getTime();
 
-  const diffMinutes = math.floor(diffMs / (1000 * 60));
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 

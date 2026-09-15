@@ -57,23 +57,23 @@ router.get("/timeline", async (req, res) => {
       `SELECT 'mistake' AS event_type, title, created_at AS event_time
        FROM mistakes
        WHERE user_id = $1
-
+    
        UNION ALL
-
+    
        SELECT 'practice' AS event_type, s.name AS title, us.last_practiced_at AS event_time
        FROM user_skills us
        JOIN skills s ON s.id = us.skill_id
        WHERE us.user_id = $1
-
+    
        UNION ALL
-
+    
        SELECT 'project' AS event_type, name AS title, created_at AS event_time
        FROM projects
        WHERE user_id = $1
-
+    
        ORDER BY event_time DESC
        LIMIT 20`,
-      [userId, userId, userId]
+      [userId]
     );
 
     res.status(200).json(result.rows);

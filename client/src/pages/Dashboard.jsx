@@ -102,9 +102,8 @@ const Dashboard = () => {
       )}
 
       {!loading && (
-        <MistakeList mistakes={mistakes} patterns={patterns} />
+        <MistakeList mistakes={mistakes} patterns={patterns} onResolved={fetchAll} />
       )}
-
       {!loading && timeline.length > 0 && (
         <TimelineFeed events={timeline} />
       )}
