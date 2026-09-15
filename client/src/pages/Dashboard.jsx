@@ -3,6 +3,7 @@ import gsap from "gsap";
 import SkillsList from "../components/SkillsList";
 import MistakeList from "../components/MistakeList";
 import TimelineFeed from "../components/TimelineFeed";
+import { apiFetch } from "../utils/api";
 
 const Dashboard = () => {
   const dashboardRef = useRef(null);
@@ -16,22 +17,11 @@ const Dashboard = () => {
 
   const fetchAll = async () => {
     try {
-      const [summaryRes, mistakesRes, patternsRes, timelineRes] = await Promise.all([
-        fetch("http://localhost:5000/api/dashboard/summary"),
-        fetch("http://localhost:5000/api/mistakes"),
-        fetch("http://localhost:5000/api/mistakes/patterns"),
-        fetch("http://localhost:5000/api/dashboard/timeline"),
-      ]);
-
-      if (!summaryRes.ok || !mistakesRes.ok || !patternsRes.ok || !timelineRes.ok) {
-        throw new Error("Failed to fetch dashboard data");
-      }
-
       const [summaryData, mistakesData, patternsData, timelineData] = await Promise.all([
-        summaryRes.json(),
-        mistakesRes.json(),
-        patternsRes.json(),
-        timelineRes.json(),
+        apiFetch("/dashboard/summary"),
+        apiFetch("/mistakes"),
+        apiFetch("/mistakes/patterns"),
+        apiFetch("/dashboard/timeline"),
       ]);
 
       setDashboardData({

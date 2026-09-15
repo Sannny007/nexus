@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost: 5000/api";
+const BASE_URL = "http://localhost:5000/api";
 
 export const apiFetch = async (path, options = {}) => {
   const token = localStorage.getItem("nexus_token");

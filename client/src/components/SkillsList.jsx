@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiFetch } from "../utils/api";
 
 const SkillsList = ({ skills, onPracticed }) => {
   const [updatingSkill, setUpdatingSkill] = useState(null);
@@ -7,12 +8,7 @@ const SkillsList = ({ skills, onPracticed }) => {
     try {
       setUpdatingSkill(skillName);
 
-      const res = await fetch(
-        `http://localhost:5000/api/skills/${skillId}/practice`,
-        { method: "PUT" }
-      );
-
-      if (!res.ok) throw new Error("Failed to mark as practiced");
+      await apiFetch(`/skills/${skillId}/practice`, { method: "PUT" });
 
       onPracticed();
     } catch (err) {
