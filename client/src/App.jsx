@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/Authcontext";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import Settings from "./pages/Settings";
 
 const ProtectedLayout = ({ children }) => {
   const { token } = useAuth();
@@ -33,6 +34,14 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedLayout>
+                <Settings />
+              </ProtectedLayout>
+            }
+          />
           <Route
             path="/"
             element={
