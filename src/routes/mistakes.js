@@ -27,6 +27,34 @@ router.get("/", async (req, res) => {
 });
 
 
+router.get("/patterns", async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const result = await pool.query(
+      `SELECT s.id AS skill_id, s.name AS skill_name, COUNT(*) AS mistake_count
+      FROM mistakes m
+      JOIN skills s ON s.id = m.skill_id
+      WHERE m.user_id = $1
+      GROUP BY s.id, s.name
+      HAVING COUNT(*) >= 2
+      ORDER BY mistake_count DESC`,
+      [userId]
+    );
+
+    const patterns = result.rows.map((row) => ({
+      ...row,
+      mistake_count: parseInt(row.mistake_count, 10),
+    }));
+
+    res.status(200).json(patterns);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch mistake patterns" });
+  }
+});
+
+
 router.post("/", async (req, res) => {
   try {
     const userId = req.userId;
@@ -68,35 +96,6 @@ router.put("/:id/resolve", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to resolve mistake" });
-  }
-});
-
-
-router.get("/patterns", async (req, res) => {
-  try {
-    const userId = req.userId;
-
-    const result = await pool.query(
-      `SELECT s.id AS skill_id, s.name AS skill_name, COUNT(*) AS mistake_count
-      FROM mistakes m
-      JOIN skills s ON s.id = m.skill_id
-      WHERE m.user_id = $1
-      GROUP BY s.id, s.name
-      HAVING COUNT(*) >= 2
-      ORDER BY mistake_count DESC`,
-      [userId]
-    );
-
-    const patterns = result.rows.map((row) => ({
-      ...row,
-      mistake_count: parseInt(row.mistake_count, 10),
-    }));
-
-    res.status(200).json(patterns);
-    // res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch mistake patterns" });
   }
 });
 

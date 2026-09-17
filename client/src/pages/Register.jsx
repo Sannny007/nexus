@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../utils/api";
 
 const Register = () => {
@@ -8,14 +7,15 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -24,8 +24,8 @@ const Register = () => {
         body: JSON.stringify({ name, email, password }),
       });
 
-      login(data.user, data.token);
-      navigate("/");
+      setSuccess(data.message || "Registration successful. Please verify your email.");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,6 +45,12 @@ const Register = () => {
         {error && (
           <p className="mb-4 rounded-lg bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
             {error}
+          </p>
+        )}
+
+        {success && (
+          <p className="mb-4 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+            {success}
           </p>
         )}
 

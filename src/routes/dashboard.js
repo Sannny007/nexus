@@ -33,9 +33,11 @@ router.get("/summary", async (req, res) => {
       return { ...skill, decayScore };
     });
 
-    const avgKnowledgeStrength = Math.round(
-      skillsWithScore.reduce((sum, s) => sum + s.decayScore, 0) / skillsWithScore.length
-    );
+    const avgKnowledgeStrength = skillsWithScore.length
+      ? Math.round(
+          skillsWithScore.reduce((sum, s) => sum + s.decayScore, 0) / skillsWithScore.length
+        )
+      : 0;
 
     res.status(200).json({
       totalProjects: parseInt(projectsResult.rows[0].count, 10),

@@ -19,7 +19,7 @@ const Settings = () => {
     const loadProfile = async () => {
       const data = await apiFetch("/users/me");
       setName(data.name);
-      setName(data.email);
+      setEmail(data.email);
     };
     loadProfile();
   }, []);

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import pool from "../db.js";
-import { sendVerificationEmail } from "../../client/src/utils/mailer.js";
+import { sendVerificationEmail } from "../utils/mailer.js";
 
 const router = Router();
 

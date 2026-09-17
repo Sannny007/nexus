@@ -35,7 +35,7 @@ const TimelineFeed = ({ events }) => {
       <div className="space-y-3">
         {events.map((event, index) => (
           <div
-            key={`${event.event_type}-${event.title}-{index}`}
+            key={`${event.event_type}-${event.title}-${index}`}
             className="flex items-center justify-between rounded-xl border border-white/5 bg-white/2 px-4 py-3"
           >
             <div className="flex items-center gap-3">

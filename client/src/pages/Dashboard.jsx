@@ -38,7 +38,36 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchAll();
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const [summaryData, mistakesData, patternsData, timelineData] = await Promise.all([
+          apiFetch("/dashboard/summary"),
+          apiFetch("/mistakes"),
+          apiFetch("/mistakes/patterns"),
+          apiFetch("/dashboard/timeline"),
+        ]);
+
+        if (cancelled) return;
+
+        setDashboardData({
+          summary: summaryData,
+          mistakes: mistakesData,
+          patterns: patternsData,
+          timeline: timelineData,
+        });
+      } catch (err) {
+        if (!cancelled) console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
