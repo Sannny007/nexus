@@ -41,7 +41,12 @@ const Sidebar = () => {
 
         <SidebarItem icon={<BookOpen size={18} />} label="Learning" />
 
-        <SidebarItem icon={<Search size={18} />} label="NEXUS Search..." />
+        <SidebarItem
+          icon={<Search size={18} />}
+          label="NEXUS Search..."
+          active={location.pathname === "/search"}
+          onClick={() => navigate("/search")}
+        />
       </nav>
 
       <div className="mt-auto">

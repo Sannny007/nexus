@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
 import Settings from "./pages/Settings";
+import Search from "./pages/Search";
 
 const ProtectedLayout = ({ children }) => {
   const { token } = useAuth();
@@ -39,6 +40,14 @@ const App = () => {
             element={
               <ProtectedLayout>
                 <Settings />
+              </ProtectedLayout>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <ProtectedLayout>
+                <Search />
               </ProtectedLayout>
             }
           />
