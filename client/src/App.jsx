@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
 import Settings from "./pages/Settings";
 import Search from "./pages/Search";
+import NexusSearch from "./pages/NexusSearch";
 
 const ProtectedLayout = ({ children }) => {
   const { token } = useAuth();
@@ -58,6 +59,14 @@ const App = () => {
                 <Dashboard />
               </ProtectedLayout>
             }
+          />
+          <Route
+          path="/search"
+          element={
+            <ProtectedLayout>
+              <NexusSearch />
+            </ProtectedLayout>
+          }
           />
         </Routes>
       </BrowserRouter>
