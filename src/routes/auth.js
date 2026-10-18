@@ -4,44 +4,35 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import pool from "../db.js";
 import { sendVerificationEmail } from "../utils/mailer.js";
+import { validate } from "../middleware/validate.js";
+import { registerSchema, loginSchema } from "../validators/auth.js";
 
 const router = Router();
 
-router.post("/register", async (req, res) => {
+const hashToken = (t) => crypto.createHash("sha256").update(t).digest("hex");
+const DUMMY_HASH = bcrypt.hashSync("dummy-password", 12);
+
+router.post("/register", validate(registerSchema), async (req, res) => {
+  const { name, email, password } = req.body;
+  const genericOk = {
+    message: "If this email can be registered, a verification link has been sent.",
+  };
+
   try {
-    const { name, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const existingUser = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [email]
-    );
-
-    if (existingUser.rows.length > 0) {
-      return res.status(409).json({ error: "Email already registered" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-    const result = await pool.query(
+    await pool.query(
       `INSERT INTO users (name, email, password, is_verified, verification_token, verification_expires)
-       VALUES ($1, $2, $3, false, $4, $5)
-       RETURNING id, name, email`,
-      [name, email, hashedPassword, verificationToken, verificationExpires]
+       VALUES ($1, $2, $3, false, $4, $5)`,
+      [name, email, hashedPassword, hashToken(rawToken), expires]
     );
 
-    await sendVerificationEmail(email, verificationToken);
-
-    res.status(201).json({
-      message: "Registration successful. Please check your email to verify your account.",
-      user: result.rows[0],
-    });
+    await sendVerificationEmail(email, rawToken);
+    res.status(201).json(genericOk);
   } catch (err) {
+    if (err.code === "23505") return res.status(201).json(genericOk);
     console.error(err);
     res.status(500).json({ error: "Failed to register user" });
   }
@@ -50,14 +41,13 @@ router.post("/register", async (req, res) => {
 router.get("/verify-email", async (req, res) => {
   try {
     const { token } = req.query;
-
-    if (!token) {
-      return res.status(400).json({ error: "No token provided" });
+    if (typeof token !== "string" || !token) {
+      return res.status(400).json({ error: "Invalid or missing token" });
     }
 
     const result = await pool.query(
       "SELECT id, verification_expires FROM users WHERE verification_token = $1",
-      [token]
+      [hashToken(token)]
     );
 
     if (result.rows.length === 0) {
@@ -65,7 +55,6 @@ router.get("/verify-email", async (req, res) => {
     }
 
     const user = result.rows[0];
-
     if (new Date() > new Date(user.verification_expires)) {
       return res.status(400).json({ error: "Verification link has expired" });
     }
@@ -84,27 +73,22 @@ router.get("/verify-email", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and Password are required" });
-    }
 
     const result = await pool.query(
       "SELECT id, name, email, password, is_verified FROM users WHERE email = $1",
       [email]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
     const user = result.rows[0];
-    const passwordMatches = await bcrypt.compare(password, user.password);
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user ? user.password : DUMMY_HASH
+    );
 
-    if (!passwordMatches) {
+    if (!user || !passwordMatches) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -112,11 +96,9 @@ router.post("/login", async (req, res) => {
       return res.status(403).json({ error: "Please verify your email before logging in" });
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     res.status(200).json({
       user: { id: user.id, name: user.name, email: user.email },
